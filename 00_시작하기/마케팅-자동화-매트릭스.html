@@ -174,7 +174,7 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
 <header>
   <h1>마케팅 업무 자동화 매트릭스</h1>
   <p class="sub"><b>어떤 문제를 풀고 싶은지</b>부터 적으면, 그 일을 <b>무엇으로(스킬·에이전트·대시보드) 만들지</b>와 우선순위까지 진단합니다.
-  마지막에 나오는 프롬프트를 <b>“에이전트 구축하자”</b>에 붙여넣으면, 채팅에서 구축이 이어집니다.</p>
+  마지막에 나오는 프롬프트를 <b>“에이전트 구축하자”</b>에 붙여넣으면, 채팅에서 구축이 이어집니다. 무엇을 만들든 결과물은 <b>HTML로 만들고, 노션에 쌓고, 디스코드로 보내는</b> 구조로 나옵니다.</p>
   <div class="flowline">멋쟁이사자처럼 AIERS · 4교시 에이전트 구축 1단계 진단 도구 · 흐름: 문제 → 진단(임팩트·적합도·결과물) → 📋 프롬프트 → 채팅 스킬로 구축 · 샘플 브랜드 결로아 · WMBB</div>
   <div class="toolbar">
     <button class="btn primary" onclick="focusForm()">＋ 내 업무 입력</button>
@@ -291,6 +291,7 @@ footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
         <span class="lg"><i style="background:var(--dash)"></i>대시보드</span>
         <span class="lg" style="color:var(--warn)">◆ 규제·보안 게이트</span>
         <span class="lg">세로축 = 자동화 적합도 (규칙·데이터·판단)</span>
+        <span class="lg">산출물은 공통으로 HTML → 노션 → 디스코드</span>
       </div>
     </div>
 
@@ -418,10 +419,10 @@ function diagnose(t){
   let kind, kindLabel, why=[];
   if(t.use==='watch'){
     kind='dash'; kindLabel='대시보드';
-    why.push('결과를 계속 들여다보는 일이라, 화면으로 띄워 두는 편이 낫습니다.');
+    why.push('결과를 계속 들여다보는 일이라, HTML 화면으로 띄워 두는 편이 낫습니다.');
   } else if(t.use==='repeat' || per>=4){
     kind='agent'; kindLabel='에이전트';
-    why.push('정해진 주기로 반복되는 일이라, 명령 한 줄로 도는 에이전트가 맞습니다.');
+    why.push('정해진 주기로 반복되는 일이라, 명령 한 줄로 도는 에이전트가 맞습니다. HTML과 노션을 만들고 디스코드로 요약을 보냅니다.');
   } else {
     kind='skill'; kindLabel='스킬';
     why.push('가끔 하지만 방식이 정해진 일이라, 방법을 저장해 두는 스킬이 맞습니다.');
@@ -601,6 +602,17 @@ function buildPrompt(t,d){
 - 우선순위 구간: ${d.quad}
 - 자동화 시 월 ${d.savedH.toFixed(1)}시간, 연 ${(d.savedH*12).toFixed(0)}시간 절감 잠재
 ${d.gate?`\n[안전 게이트]\n- ${d.gate}\n- 에이전트는 제안까지만 하고, 실행은 내가 승인한 뒤에 한다.`:''}
+
+[산출물 구조]
+결과물은 늘 세 곳으로 보낸다.
+1) HTML 화면을 만든다 (표·차트·경고 표시·다음 행동 제안까지 전부)
+2) 같은 내용을 노션에 페이지로 아카이브한다 (날짜와 기간을 함께 적는다)
+3) 디스코드 웹훅으로 요약을 보낸다 (핵심 숫자 3~5개 + 가장 급한 것 1개 + 노션 링크)
+디스코드는 만드는 곳이 아니라 보내는 곳이다. 1)과 2)를 먼저 만들고 그 결과를 발송한다.
+
+[안전 원칙]
+제안까지만 한다. 예산 변경, 광고 집행, 고객 메시지 발송, 콘텐츠 발행, 삭제는
+내가 승인한 뒤에 실행한다. 계정 연결은 조회 전용을 기본으로 한다.
 
 [요청]
 위 내용을 바탕으로 ${d.kindLabel}을 만들어 줘.
