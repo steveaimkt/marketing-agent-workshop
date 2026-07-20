@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마케팅 업무 자동화 매트릭스 · 어떤 문제를, 무엇으로 풀까</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --ink:#16181d; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#2f6df6; --accent-soft:#eaf1ff;
+  --skill:#7c5cff; --agent:#2f6df6; --dash:#10a37f;
+  --warn:#e8590c; --danger:#d64545;
+  --r:12px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.1);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.02em}
+button,select,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 64px}
+
+/* header */
+header{margin-bottom:22px}
+h1{font-size:26px;line-height:1.3}
+.sub{color:var(--muted);margin-top:10px;max-width:820px}
+.sub b{color:var(--ink)}
+.flowline{margin-top:14px;font-size:12.5px;color:var(--muted);
+  background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:8px 14px;display:inline-block}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:9px;
+  padding:8px 14px;cursor:pointer;font-size:13.5px;font-weight:600;transition:.15s}
+.btn:hover{border-color:#c9ced6;background:#fafbfc}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#2359d6}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger)}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 18px;
+  border-bottom:1px solid var(--line);padding-bottom:12px}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:999px;
+  padding:7px 15px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);transition:.15s}
+.tab:hover{border-color:#c9ced6}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(330px,400px) 1fr;gap:18px;align-items:start}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+.card h2{font-size:15px;display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.card h2 small{font-size:12px;font-weight:500;color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted);margin:2px 0 14px}
+
+/* form */
+.step{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.step:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.step-h{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;gap:7px;align-items:baseline}
+.step-h span{color:var(--muted);font-weight:500;font-size:12px}
+label{display:block;font-size:12.5px;font-weight:600;margin:11px 0 5px}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;background:#fff;font-size:14px}
+input[type=text]:focus,textarea:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+textarea{min-height:62px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 11px;
+  cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);transition:.12s}
+.chip:hover{border-color:#c9ced6}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.slider-lab{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:3px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.form-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+
+/* examples */
+.ex-list{display:flex;flex-direction:column;gap:7px}
+.ex{border:1px solid var(--line);border-radius:9px;padding:10px 12px;cursor:pointer;
+  display:flex;justify-content:space-between;gap:10px;align-items:center;transition:.12s;background:#fff}
+.ex:hover{border-color:var(--accent);background:var(--accent-soft)}
+.ex-t{font-size:13px;font-weight:600}
+.ex-m{font-size:11.5px;color:var(--muted);white-space:nowrap}
+
+/* task list */
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task{border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;
+  display:flex;gap:12px;align-items:flex-start;transition:.12s;background:#fff}
+.task:hover{border-color:#c9ced6}
+.task.sel{border-color:var(--accent);background:var(--accent-soft)}
+.task-body{flex:1;min-width:0}
+.task-t{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.task-m{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;color:#fff;white-space:nowrap}
+.b-skill{background:var(--skill)} .b-agent{background:var(--agent)} .b-dash{background:var(--dash)}
+.gate{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;
+  background:#fff4ed;color:var(--warn);border:1px solid #ffd9c2;white-space:nowrap}
+.del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px}
+.del:hover{color:var(--danger)}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:26px 10px;
+  border:1px dashed var(--line);border-radius:10px}
+
+/* result */
+.verdict{border-radius:10px;padding:16px;margin-bottom:14px;border:1px solid var(--line)}
+.verdict.skill{background:#f6f3ff;border-color:#e0d7ff}
+.verdict.agent{background:#eef4ff;border-color:#d6e3ff}
+.verdict.dash{background:#eafaf4;border-color:#c9efe0}
+.verdict-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.verdict-t{font-size:17px;font-weight:800}
+.verdict-d{font-size:13.5px;color:#374151}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;margin:14px 0}
+.metric{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px}
+.metric-v{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.metric-l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.why{font-size:13px;color:#374151;background:#fff;border:1px solid var(--line);
+  border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.why li{margin:4px 0}
+.why ul{margin:6px 0 0;padding-left:18px}
+.prompt-box{position:relative}
+pre{background:#15171c;color:#e8eaed;border-radius:10px;padding:15px 16px;
+  font-size:12.5px;line-height:1.65;overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin:0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.copy{position:absolute;top:10px;right:10px;background:#2a2d35;color:#e8eaed;border:0;
+  border-radius:7px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer}
+.copy:hover{background:#3a3e48}
+
+/* matrix */
+.matrix-wrap{position:relative;padding:6px 0 0 0}
+.matrix{position:relative;width:100%;aspect-ratio:1/.78;border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;background:#fff}
+.q{position:absolute;width:50%;height:50%;padding:11px 13px}
+.q-t{font-size:12.5px;font-weight:800}
+.q-d{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45}
+.q1{left:50%;top:0;background:#eef6ff}      /* 지금 바로 */
+.q2{left:0;top:0;background:#fffaf2}        /* 반자동 */
+.q3{left:50%;top:50%;background:#f4fbf8}    /* 빠른 적용 */
+.q4{left:0;top:50%;background:#fafafa}      /* 나중에 */
+.axis-x,.axis-y{position:absolute;background:var(--line)}
+.axis-x{left:0;right:0;top:50%;height:1px}
+.axis-y{top:0;bottom:0;left:50%;width:1px}
+.dot{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,50%);
+  cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);transition:.12s}
+.dot:hover{width:22px;height:22px;z-index:5}
+.dot.sel{width:22px;height:22px;box-shadow:0 0 0 4px rgba(47,109,246,.28);z-index:6}
+.dot.gated::after{content:"◆";position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:var(--warn)}
+.ax-lab{font-size:11.5px;color:var(--muted);margin-top:8px;display:flex;justify-content:space-between}
+.ax-y{position:absolute;left:-8px;top:50%;transform:rotate(-90deg) translateX(50%);
+  transform-origin:left center;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px;align-items:center}
+.lg{display:flex;align-items:center;gap:5px}
+.lg i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* summary */
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.sum .metric-v{font-size:24px}
+.dist{font-size:12.5px;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.reco{background:var(--accent-soft);border:1px solid #d6e3ff;border-radius:9px;
+  padding:12px 14px;font-size:13.5px;margin-top:12px}
+footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media print{
+  body{background:#fff}
+  .toolbar,.tabs,.form-card,.ex-card,.copy,.del{display:none!important}
+  .grid{grid-template-columns:1fr}
+  .card{break-inside:avoid;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>마케팅 업무 자동화 매트릭스</h1>
+  <p class="sub"><b>어떤 문제를 풀고 싶은지</b>부터 적으면, 그 일을 <b>무엇으로(스킬·에이전트·대시보드) 만들지</b>와 우선순위까지 진단합니다.
+  마지막에 나오는 프롬프트를 <b>“에이전트 구축하자”</b>에 붙여넣으면, 채팅에서 구축이 이어집니다.</p>
+  <div class="flowline">멋쟁이사자처럼 AIERS · 4교시 에이전트 구축 1단계 진단 도구 · 흐름: 문제 → 진단(임팩트·적합도·결과물) → 📋 프롬프트 → 채팅 스킬로 구축 · 샘플 브랜드 결로아 · WMBB</div>
+  <div class="toolbar">
+    <button class="btn primary" onclick="focusForm()">＋ 내 업무 입력</button>
+    <button class="btn" onclick="loadExamples()">직군 예시 불러오기</button>
+    <button class="btn ghost danger" onclick="clearAll()">전부 비우기</button>
+    <button class="btn ghost" onclick="window.print()">인쇄 · PDF 저장</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="grid">
+  <!-- LEFT -->
+  <div>
+    <div class="card form-card" id="formCard">
+      <h2>업무 진단 <small>4단계</small></h2>
+      <p class="hint">지금 반복하는 일 하나를 떠올리며 채워 주세요. 3~5개만 넣어도 충분합니다.</p>
+
+      <div class="step">
+        <div class="step-h">① 어떤 문제를 해결하고 싶나요? <span>지금 무엇이 불편한가</span></div>
+        <label>업무 이름 (짧게)</label>
+        <input type="text" id="f-name" placeholder="예: 주간 광고 성과 취합">
+        <label>지금 무엇이 불편한가요 (선택)</label>
+        <textarea id="f-pain" placeholder="예: 매체 세 곳을 왕복하며 숫자를 옮겨 적는데, 매번 기준이 달라져서 비교가 안 됩니다"></textarea>
+        <label>내 직군</label>
+        <select id="f-role"></select>
+      </div>
+
+      <div class="step">
+        <div class="step-h">② 지금은 어떻게 하고 있나요? <span>빈도 · 소요 · 데이터</span></div>
+        <label>얼마나 자주 하나요</label>
+        <div class="chips" id="f-freq"></div>
+        <div class="row">
+          <div>
+            <label>1회 소요 (분)</label>
+            <input type="text" id="f-min" value="60" inputmode="numeric">
+          </div>
+          <div>
+            <label>데이터는 어떤 형태인가요</label>
+            <select id="f-data">
+              <option value="5">디지털 (엑셀·시트·매체 계정)</option>
+              <option value="3">일부 수기 · 이미지 · 캡처</option>
+              <option value="1">종이 · 구두 · 흩어져 있음</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-h">③ 일의 성격은? <span>정형화 · 판단 · 규제</span></div>
+        <label>규칙이 얼마나 분명한가요 (정형화)</label>
+        <input type="range" id="f-rule" min="1" max="5" value="3">
+        <div class="slider-lab"><span>그때그때 다름</span><span>규칙이 분명</span></div>
+        <label>사람 판단(감성·창의)이 얼마나 필요한가요</label>
+        <input type="range" id="f-judge" min="1" max="5" value="3">
+        <div class="slider-lab"><span>거의 기계적</span><span>꼭 사람이 판단</span></div>
+        <label>보안 · 규제</label>
+        <select id="f-risk">
+          <option value="none">일반</option>
+          <option value="pii">고객 개인정보 포함</option>
+          <option value="ad">표시·광고 규제 (화장품·식품·의료)</option>
+          <option value="acct">매체 계정 권한 (예산·집행 변경)</option>
+        </select>
+      </div>
+
+      <div class="step">
+        <div class="step-h">④ 원하는 결과는? <span>기대</span></div>
+        <label>결과를 어떻게 쓰나요</label>
+        <div class="chips" id="f-use"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary" onclick="addTask()">진단하기</button>
+        <button class="btn ghost" onclick="resetForm()">지우기</button>
+      </div>
+    </div>
+
+    <div class="card ex-card">
+      <h2>이 직군 예시 업무 <small>클릭하면 폼에 채워집니다</small></h2>
+      <p class="hint">뭘 적어야 할지 막막하면 여기서 시작하세요.</p>
+      <div class="ex-list" id="exList"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <div class="card">
+      <h2>업무 목록 <small id="taskCount"></small></h2>
+      <p class="hint">점이나 목록을 클릭하면 아래에 진단 결과가 나옵니다.</p>
+      <div class="tasks" id="taskList"></div>
+    </div>
+
+    <div class="card">
+      <h2>진단 결과 <small>무엇으로 만들까</small></h2>
+      <div id="result"><div class="empty">왼쪽에 풀고 싶은 문제를 적거나, 목록에서 업무를 선택하세요.</div></div>
+    </div>
+
+    <div class="card">
+      <h2>자동화 우선순위 매트릭스</h2>
+      <p class="hint">가로는 아낄 수 있는 시간, 세로는 자동화가 잘 맞는 정도입니다. 오른쪽 위부터 만드세요.</p>
+      <div class="matrix-wrap">
+        <div class="matrix" id="matrix">
+          <div class="q q2"><div class="q-t">반자동 + 사람 게이트</div><div class="q-d">가치는 크지만 판단·규제가 많음. 에이전트가 초안, 사람이 확정</div></div>
+          <div class="q q1"><div class="q-t">지금 바로</div><div class="q-d">가치 크고 규칙 분명. 최우선 자동화</div></div>
+          <div class="q q4"><div class="q-t">나중에 / 수동 유지</div><div class="q-d">효과 작고 까다로움. 급하지 않음</div></div>
+          <div class="q q3"><div class="q-t">빠른 적용</div><div class="q-d">규칙 분명하고 가벼움. 짧게 만들어 두기</div></div>
+          <div class="axis-x"></div><div class="axis-y"></div>
+        </div>
+        <div class="ax-lab"><span>← 임팩트 작음</span><span>임팩트 (월 절감 시간) →</span></div>
+      </div>
+      <div class="legend">
+        <span class="lg"><i style="background:var(--skill)"></i>스킬</span>
+        <span class="lg"><i style="background:var(--agent)"></i>에이전트</span>
+        <span class="lg"><i style="background:var(--dash)"></i>대시보드</span>
+        <span class="lg" style="color:var(--warn)">◆ 규제·보안 게이트</span>
+        <span class="lg">세로축 = 자동화 적합도 (규칙·데이터·판단)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>종합 <small id="sumScope">전체</small></h2>
+      <div class="sum">
+        <div class="metric"><div class="metric-v" id="s-count">0</div><div class="metric-l">진단한 업무</div></div>
+        <div class="metric"><div class="metric-v" id="s-month">0.0h/월</div><div class="metric-l">자동화 시 월 절감 잠재</div></div>
+        <div class="metric"><div class="metric-v" id="s-year">0h/년</div><div class="metric-l">연 절감 잠재 시간</div></div>
+      </div>
+      <div class="reco" id="reco">업무를 추가하면 먼저 만들 에이전트를 추천합니다.</div>
+      <div class="dist" id="dist">결과물 분포 스킬 0 · 에이전트 0 · 대시보드 0</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>WMBB · 멋쟁이사자처럼 AIERS × 클로드코드 · 마케터를 위한 에이전트 구축</span>
+  <span>입력값은 이 브라우저에만 저장됩니다 (서버 전송 없음)</span>
+</footer>
+</div>
+
+<script>
+/* ── 직군 정의 ───────────────────────────── */
+const ROLES = [
+  {id:'all',  name:'전체'},
+  {id:'perf', name:'퍼포먼스'},
+  {id:'cont', name:'콘텐츠'},
+  {id:'crm',  name:'CRM'},
+  {id:'brand',name:'브랜드'},
+  {id:'growth',name:'그로스'},
+  {id:'solo', name:'1인 마케터'}
+];
+
+/* 빈도 → 월 횟수 */
+const FREQ = [
+  {id:'daily', label:'매일',     per:20},
+  {id:'w23',   label:'주 2~3회', per:10},
+  {id:'w1',    label:'주 1회',   per:4},
+  {id:'m12',   label:'월 1~2회', per:1.5},
+  {id:'adhoc', label:'비정기',   per:1}
+];
+
+const USES = [
+  {id:'once',   label:'한 번 만들고 끝 (자료·초안)'},
+  {id:'repeat', label:'정기적으로 반복 실행'},
+  {id:'watch',  label:'계속 들여다봄 (현황·대시보드)'}
+];
+
+/* ── 직군별 예시 업무 ───────────────────────── */
+const EXAMPLES = {
+perf:[
+ {n:'주간 광고 성과 취합',      p:'매체 세 곳을 왕복하며 숫자를 옮겨 적는데 기준이 매번 달라짐', f:'w1',  m:120, d:5, r:5, j:2, k:'none', u:'repeat'},
+ {n:'일일 예산 소진 체크',      p:'아침마다 계정 들어가서 과소진 캠페인 찾아봄',                f:'daily',m:20, d:5, r:5, j:2, k:'acct', u:'watch'},
+ {n:'캠페인 성과 보고서 작성',   p:'월말에 표와 코멘트를 손으로 만듦',                        f:'m12', m:180, d:5, r:4, j:3, k:'none', u:'repeat'},
+ {n:'소재별 성과 비교',         p:'어떤 소재가 이겼는지 감으로 판단',                        f:'w1',  m:60,  d:5, r:4, j:3, k:'none', u:'repeat'},
+ {n:'제외 키워드 정리',         p:'검색어 리포트를 눈으로 훑으며 골라냄',                     f:'w1',  m:45,  d:5, r:4, j:3, k:'acct', u:'repeat'},
+ {n:'예산 재배분 회의 자료',     p:'매체별 효율을 다시 계산해 표로 만듦',                     f:'m12', m:90,  d:5, r:3, j:4, k:'none', u:'once'}
+],
+cont:[
+ {n:'주간 콘텐츠 기획',         p:'매주 무슨 주제로 쓸지 처음부터 고민',                     f:'w1',  m:90,  d:3, r:3, j:4, k:'none', u:'repeat'},
+ {n:'키워드·트렌드 리서치',      p:'검색량을 하나씩 찾아보고 메모',                          f:'w1',  m:60,  d:5, r:4, j:2, k:'none', u:'repeat'},
+ {n:'콘텐츠 성과 정리',         p:'채널별로 조회수를 모아 시트에 붙임',                      f:'w1',  m:50,  d:5, r:5, j:2, k:'none', u:'watch'},
+ {n:'제목·카피 후보 뽑기',       p:'매번 새로 짜내느라 시간이 오래 걸림',                     f:'w23', m:40,  d:3, r:3, j:4, k:'ad',   u:'repeat'},
+ {n:'경쟁사 콘텐츠 확인',        p:'경쟁사 채널을 돌아다니며 눈으로 확인',                    f:'w1',  m:45,  d:3, r:4, j:3, k:'none', u:'repeat'},
+ {n:'상세페이지 문구 다듬기',     p:'규제 문구를 매번 찾아보며 고침',                         f:'m12', m:120, d:3, r:3, j:4, k:'ad',   u:'once'}
+],
+crm:[
+ {n:'고객 데이터 통합',         p:'자사몰·SNS·CS 명단이 따로 놀아 매번 손으로 합침',          f:'m12', m:180, d:3, r:4, j:2, k:'pii',  u:'repeat'},
+ {n:'세그먼트 재분류',          p:'등급 기준을 다시 계산해 명단을 나눔',                     f:'m12', m:120, d:5, r:5, j:2, k:'pii',  u:'repeat'},
+ {n:'이탈 위험 고객 추출',       p:'마지막 구매일을 일일이 확인',                            f:'w1',  m:60,  d:5, r:5, j:2, k:'pii',  u:'watch'},
+ {n:'반복 문의 답변',           p:'비슷한 질문에 매번 템플릿을 찾아 복사',                   f:'daily',m:40, d:3, r:4, j:3, k:'pii',  u:'repeat'},
+ {n:'재구매 유도 메시지 작성',    p:'세그먼트마다 문구를 새로 씀',                            f:'w1',  m:70,  d:3, r:3, j:4, k:'pii',  u:'repeat'},
+ {n:'LTV·재구매율 계산',        p:'분기마다 엑셀로 다시 계산',                              f:'m12', m:150, d:5, r:5, j:2, k:'pii',  u:'watch'}
+],
+brand:[
+ {n:'경쟁사 모니터링',          p:'경쟁사 사이트·SNS를 매일 눈으로 확인',                    f:'daily',m:30, d:3, r:4, j:2, k:'none', u:'repeat'},
+ {n:'리뷰·VoC 정리',           p:'리뷰를 읽고 불만 유형을 손으로 분류',                     f:'w1',  m:90,  d:3, r:4, j:3, k:'none', u:'repeat'},
+ {n:'브랜드 언급 추적',         p:'검색해서 언급된 글을 모아 봄',                           f:'w1',  m:45,  d:3, r:4, j:3, k:'none', u:'watch'},
+ {n:'광고 레퍼런스 수집',        p:'괜찮은 소재를 발견할 때마다 캡처해 폴더에 저장',           f:'w23', m:40, d:1, r:3, j:4, k:'none', u:'repeat'},
+ {n:'브랜드 톤 검수',           p:'나가는 문구가 가이드에 맞는지 매번 사람이 확인',           f:'w23', m:35, d:3, r:4, j:4, k:'ad',   u:'repeat'},
+ {n:'전략 보고서 작성',         p:'시장 자료를 모아 분기 보고서를 씀',                       f:'m12', m:240, d:3, r:2, j:5, k:'none', u:'once'}
+],
+growth:[
+ {n:'퍼널 이탈 구간 확인',       p:'단계별 전환을 매번 다시 계산',                           f:'w1',  m:70,  d:5, r:5, j:2, k:'none', u:'watch'},
+ {n:'주간 트래픽 리포트',        p:'채널별 유입을 모아 표로 만듦',                           f:'w1',  m:80,  d:5, r:5, j:2, k:'none', u:'repeat'},
+ {n:'A/B 테스트 해석',          p:'차이가 의미 있는지 확신이 안 서서 감으로 판단',            f:'m12', m:90,  d:5, r:4, j:3, k:'none', u:'repeat'},
+ {n:'랜딩 페이지 성과 비교',      p:'페이지별 숫자를 하나씩 열어 확인',                       f:'w1',  m:50,  d:5, r:5, j:2, k:'none', u:'watch'},
+ {n:'개선 가설 정리',           p:'회의 전에 무엇을 시험할지 매번 처음부터 생각',            f:'w1',  m:60,  d:3, r:2, j:5, k:'none', u:'once'},
+ {n:'통합 성과 보고',           p:'여러 소스를 한 보고서로 합치는 데 반나절',                f:'m12', m:200, d:3, r:4, j:3, k:'none', u:'repeat'}
+],
+solo:[
+ {n:'주간 성과 한 장 정리',      p:'광고·콘텐츠·매출을 각각 열어보고 손으로 합침',            f:'w1',  m:100, d:3, r:4, j:2, k:'none', u:'watch'},
+ {n:'매일 매출·주문 확인',       p:'아침마다 여러 화면을 돌아다님',                          f:'daily',m:20, d:5, r:5, j:1, k:'none', u:'watch'},
+ {n:'SNS 댓글·DM 응대',        p:'비슷한 질문에 매번 답을 새로 씀',                        f:'daily',m:35, d:3, r:3, j:4, k:'pii',  u:'repeat'},
+ {n:'콘텐츠 발행 일정 관리',      p:'뭘 언제 올릴지 매번 다시 짬',                           f:'w1',  m:45,  d:3, r:4, j:3, k:'none', u:'repeat'},
+ {n:'광고 소재 사이즈 변환',      p:'채널마다 크기를 바꿔 다시 만듦',                        f:'w23', m:50,  d:3, r:5, j:2, k:'none', u:'repeat'},
+ {n:'월말 정산·보고',           p:'월말마다 숫자를 모아 정리',                              f:'m12', m:180, d:5, r:5, j:2, k:'none', u:'repeat'}
+]
+};
+
+/* ── 상태 ────────────────────────────────── */
+let tasks = [];
+let curRole = 'all';
+let selId = null;
+let formRole = 'perf';
+
+const $ = s => document.querySelector(s);
+const roleName = id => (ROLES.find(r=>r.id===id)||{}).name || id;
+
+/* ── 진단 로직 ───────────────────────────── */
+function diagnose(t){
+  const per = (FREQ.find(f=>f.id===t.freq)||FREQ[2]).per;
+  const monthlyH = per * t.min / 60;                       // 월 소요 시간
+
+  // 자동화 적합도 0~100 : 규칙 + (역)판단 + 데이터
+  const fitRaw = (t.rule*2) + ((6-t.judge)*2) + t.data;    // 5~25
+  const fit = Math.round((fitRaw-5)/20*100);
+
+  // 자동화 시 절감률: 적합도가 높을수록 많이 아낀다 (35%~85%)
+  const savedRate = 0.35 + (fit/100)*0.5;
+  const savedH = monthlyH * savedRate;
+
+  // 결과물 판정
+  let kind, kindLabel, why=[];
+  if(t.use==='watch'){
+    kind='dash'; kindLabel='대시보드';
+    why.push('결과를 계속 들여다보는 일이라, 화면으로 띄워 두는 편이 낫습니다.');
+  } else if(t.use==='repeat' || per>=4){
+    kind='agent'; kindLabel='에이전트';
+    why.push('정해진 주기로 반복되는 일이라, 명령 한 줄로 도는 에이전트가 맞습니다.');
+  } else {
+    kind='skill'; kindLabel='스킬';
+    why.push('가끔 하지만 방식이 정해진 일이라, 방법을 저장해 두는 스킬이 맞습니다.');
+  }
+  // 판단이 아주 높으면 완전 자동 대신 초안형으로 내린다
+  if(t.judge>=5 && kind==='agent'){
+    kind='skill'; kindLabel='스킬 (초안 생성형)';
+    why.push('사람 판단이 많이 필요해서, 자동 실행보다 초안을 뽑아 주는 형태가 안전합니다.');
+  }
+
+  // 게이트
+  let gate=null;
+  if(t.risk==='pii')  gate='고객 개인정보. 이름·연락처·주소를 지운 뒤 쓰고, 발송은 사람이 승인합니다.';
+  if(t.risk==='ad')   gate='표시·광고 규제. 금지 표현을 자동 검출하되, 최종 문구는 사람이 확정합니다.';
+  if(t.risk==='acct') gate='매체 계정 권한. 조회만 하고 예산 변경·집행은 사람이 승인합니다.';
+
+  if(t.data<=1) why.push('데이터가 흩어져 있어, 먼저 한곳에 모으는 것부터가 실제 작업입니다.');
+  if(t.rule<=2) why.push('규칙이 그때그때 달라서, 기준을 먼저 문장으로 정해야 자동화가 됩니다.');
+  if(monthlyH>=8) why.push('월 '+monthlyH.toFixed(1)+'시간을 쓰고 있어 효과가 큰 편입니다.');
+
+  // 사분면
+  const impactHi = savedH >= 4;
+  const fitHi = fit >= 55;
+  let quad = impactHi ? (fitHi?'지금 바로':'반자동 + 사람 게이트')
+                      : (fitHi?'빠른 적용':'나중에 / 수동 유지');
+
+  return {monthlyH, savedH, fit, kind, kindLabel, why, gate, quad, priority: savedH*(fit/100)};
+}
+
+/* ── 렌더 ────────────────────────────────── */
+function renderTabs(){
+  $('#tabs').innerHTML = ROLES.map(r=>
+    `<button class="tab ${curRole===r.id?'on':''}" onclick="setRole('${r.id}')">${r.name}</button>`).join('');
+}
+function setRole(id){
+  curRole=id;
+  if(id!=='all'){ formRole=id; $('#f-role').value=id; }
+  renderAll();
+}
+function renderRoleSelect(){
+  $('#f-role').innerHTML = ROLES.filter(r=>r.id!=='all')
+    .map(r=>`<option value="${r.id}">${r.name} 마케터</option>`).join('');
+  $('#f-role').value = formRole;
+  $('#f-role').onchange = e => { formRole = e.target.value; renderExamples(); };
+}
+function renderChips(){
+  $('#f-freq').innerHTML = FREQ.map((f,i)=>
+    `<button class="chip ${i===2?'on':''}" data-v="${f.id}" onclick="pick(this,'#f-freq')">${f.label}</button>`).join('');
+  $('#f-use').innerHTML = USES.map((u,i)=>
+    `<button class="chip ${i===1?'on':''}" data-v="${u.id}" onclick="pick(this,'#f-use')">${u.label}</button>`).join('');
+}
+function pick(el,grp){
+  document.querySelectorAll(grp+' .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+const chipVal = grp => (document.querySelector(grp+' .chip.on')||{dataset:{}}).dataset.v;
+
+function renderExamples(){
+  const list = EXAMPLES[formRole]||[];
+  $('#exList').innerHTML = list.map((e,i)=>
+    `<div class="ex" onclick="fillEx(${i})">
+       <span class="ex-t">${e.n}</span>
+       <span class="ex-m">${(FREQ.find(f=>f.id===e.f)||{}).label} · ${e.m}분</span>
+     </div>`).join('');
+}
+function fillEx(i){
+  const e = EXAMPLES[formRole][i];
+  $('#f-name').value=e.n; $('#f-pain').value=e.p; $('#f-role').value=formRole;
+  $('#f-min').value=e.m; $('#f-data').value=e.d;
+  $('#f-rule').value=e.r; $('#f-judge').value=e.j; $('#f-risk').value=e.k;
+  document.querySelectorAll('#f-freq .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===e.f));
+  document.querySelectorAll('#f-use .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===e.u));
+  $('#f-name').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function loadExamples(){
+  const role = curRole==='all' ? formRole : curRole;
+  (EXAMPLES[role]||[]).forEach(e=>{
+    tasks.push({id:Date.now()+Math.random(), name:e.n, pain:e.p, role:role,
+      freq:e.f, min:e.m, data:e.d, rule:e.r, judge:e.j, risk:e.k, use:e.u});
+  });
+  save(); renderAll();
+}
+
+function visible(){ return curRole==='all' ? tasks : tasks.filter(t=>t.role===curRole); }
+
+function renderTasks(){
+  const v = visible();
+  $('#taskCount').textContent = v.length ? `${v.length}건` : '';
+  if(!v.length){
+    $('#taskList').innerHTML = '<div class="empty">업무가 없습니다. 위에서 추가하거나 예시를 불러오세요.</div>';
+    return;
+  }
+  const rows = v.map(t=>({t, d:diagnose(t)})).sort((a,b)=>b.d.priority-a.d.priority);
+  $('#taskList').innerHTML = rows.map(({t,d})=>
+    `<div class="task ${selId===t.id?'sel':''}" onclick="select(${t.id})">
+       <div class="task-body">
+         <div class="task-t">${esc(t.name)}
+           <span class="badge b-${d.kind}">${d.kindLabel}</span>
+           ${d.gate?'<span class="gate">◆ 게이트</span>':''}
+         </div>
+         <div class="task-m">${roleName(t.role)} · ${d.quad} · 월 ${d.monthlyH.toFixed(1)}h 중 ${d.savedH.toFixed(1)}h 절감 가능 · 적합도 ${d.fit}</div>
+       </div>
+       <button class="del" onclick="event.stopPropagation();del(${t.id})">×</button>
+     </div>`).join('');
+}
+
+function renderMatrix(){
+  const m = $('#matrix');
+  m.querySelectorAll('.dot').forEach(d=>d.remove());
+  const v = visible();
+  const maxSaved = Math.max(8, ...v.map(t=>diagnose(t).savedH));
+  v.forEach(t=>{
+    const d = diagnose(t);
+    const x = Math.min(96, (d.savedH/maxSaved)*92+4);
+    const y = Math.min(96, d.fit*0.92+4);
+    const el = document.createElement('div');
+    el.className = `dot ${selId===t.id?'sel':''} ${d.gate?'gated':''}`;
+    el.style.left = x+'%';
+    el.style.bottom = y+'%';
+    el.style.background = d.kind==='skill'?'var(--skill)':d.kind==='agent'?'var(--agent)':'var(--dash)';
+    el.title = `${t.name} · ${d.kindLabel} · ${d.quad}`;
+    el.onclick = () => select(t.id);
+    m.appendChild(el);
+  });
+}
+
+function renderResult(){
+  const t = tasks.find(x=>x.id===selId);
+  if(!t){
+    $('#result').innerHTML = '<div class="empty">왼쪽에 풀고 싶은 문제를 적거나, 목록에서 업무를 선택하세요.</div>';
+    return;
+  }
+  const d = diagnose(t);
+  $('#result').innerHTML = `
+    <div class="verdict ${d.kind}">
+      <div class="verdict-top">
+        <span class="verdict-t">${esc(t.name)}</span>
+        <span class="badge b-${d.kind}">${d.kindLabel}</span>
+        <span style="font-size:12.5px;color:var(--muted)">${d.quad}</span>
+      </div>
+      <div class="verdict-d">${d.why[0]}</div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-v">${d.monthlyH.toFixed(1)}h</div><div class="metric-l">지금 월 소요</div></div>
+      <div class="metric"><div class="metric-v">${d.savedH.toFixed(1)}h</div><div class="metric-l">월 절감 잠재</div></div>
+      <div class="metric"><div class="metric-v">${d.fit}</div><div class="metric-l">자동화 적합도</div></div>
+      <div class="metric"><div class="metric-v">${(d.savedH*12).toFixed(0)}h</div><div class="metric-l">연 절감 잠재</div></div>
+    </div>
+    ${d.why.length>1?`<div class="why"><b>왜 이렇게 판단했나</b><ul>${d.why.slice(1).map(w=>`<li>${w}</li>`).join('')}</ul></div>`:''}
+    ${d.gate?`<div class="why" style="background:#fff8f3;border-color:#ffd9c2"><b style="color:var(--warn)">◆ 안전 게이트</b><br>${d.gate}</div>`:''}
+    <div class="prompt-box">
+      <button class="copy" onclick="copyPrompt()">복사</button>
+      <pre id="promptText">${esc(buildPrompt(t,d))}</pre>
+    </div>
+    <p class="hint" style="margin-top:10px">이 프롬프트를 복사해 채팅창의 <b>“에이전트 구축하자”</b>에 붙여넣으면 구축이 이어집니다.</p>`;
+}
+
+function buildPrompt(t,d){
+  const useLabel = (USES.find(u=>u.id===t.use)||{}).label;
+  const freqLabel = (FREQ.find(f=>f.id===t.freq)||{}).label;
+  return `에이전트 구축하자
+
+[내 직군] ${roleName(t.role)} 마케터
+[만들 것] ${d.kindLabel}
+[업무 이름] ${t.name}
+[지금 불편한 점] ${t.pain||'(작성 안 함)'}
+
+[현재 상황]
+- 빈도: ${freqLabel} (월 소요 약 ${d.monthlyH.toFixed(1)}시간)
+- 1회 소요: ${t.min}분
+- 데이터 형태: ${t.data==5?'디지털(엑셀·시트·매체 계정)':t.data==3?'일부 수기·이미지':'종이·구두·흩어져 있음'}
+- 규칙 명확도: ${t.rule}/5, 사람 판단 필요도: ${t.judge}/5
+- 결과 사용 방식: ${useLabel}
+
+[진단 결과]
+- 자동화 적합도: ${d.fit}/100
+- 우선순위 구간: ${d.quad}
+- 자동화 시 월 ${d.savedH.toFixed(1)}시간, 연 ${(d.savedH*12).toFixed(0)}시간 절감 잠재
+${d.gate?`\n[안전 게이트]\n- ${d.gate}\n- 에이전트는 제안까지만 하고, 실행은 내가 승인한 뒤에 한다.`:''}
+
+[요청]
+위 내용을 바탕으로 ${d.kindLabel}을 만들어 줘.
+한 번에 다 하지 말고 한 단계씩 물어보면서 진행해 줘.
+실습 데이터로 먼저 만들고, 마지막에 내 실제 파일로 바꾸는 순서로 가자.`;
+}
+
+function copyPrompt(){
+  const txt = $('#promptText').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b = document.querySelector('.copy');
+    b.textContent='복사됨'; setTimeout(()=>b.textContent='복사',1400);
+  });
+}
+
+function renderSummary(){
+  const v = visible();
+  $('#sumScope').textContent = roleName(curRole);
+  const ds = v.map(t=>({t,d:diagnose(t)}));
+  const month = ds.reduce((s,x)=>s+x.d.savedH,0);
+  $('#s-count').textContent = v.length;
+  $('#s-month').textContent = month.toFixed(1)+'h/월';
+  $('#s-year').textContent  = (month*12).toFixed(0)+'h/년';
+  const c={skill:0,agent:0,dash:0};
+  ds.forEach(x=>c[x.d.kind]++);
+  $('#dist').textContent = `결과물 분포 스킬 ${c.skill} · 에이전트 ${c.agent} · 대시보드 ${c.dash}`;
+  if(!ds.length){ $('#reco').textContent='업무를 추가하면 먼저 만들 에이전트를 추천합니다.'; return; }
+  const top = ds.sort((a,b)=>b.d.priority-a.d.priority)[0];
+  $('#reco').innerHTML = `<b>먼저 만들 것 →</b> ${esc(top.t.name)} <span class="badge b-${top.d.kind}" style="margin-left:4px">${top.d.kindLabel}</span><br>
+    <span style="font-size:12.5px;color:var(--muted)">${top.d.quad} · 이것 하나로 월 ${top.d.savedH.toFixed(1)}시간을 아낄 수 있습니다.</span>`;
+}
+
+function renderAll(){ renderTabs(); renderExamples(); renderTasks(); renderMatrix(); renderResult(); renderSummary(); }
+
+/* ── 액션 ────────────────────────────────── */
+function addTask(){
+  const name = $('#f-name').value.trim();
+  if(!name){ $('#f-name').focus(); $('#f-name').style.borderColor='var(--danger)';
+    setTimeout(()=>$('#f-name').style.borderColor='',1200); return; }
+  const min = Math.max(1, parseInt($('#f-min').value)||30);
+  const t = {id:Date.now()+Math.random(), name, pain:$('#f-pain').value.trim(),
+    role:$('#f-role').value, freq:chipVal('#f-freq')||'w1', min,
+    data:+$('#f-data').value, rule:+$('#f-rule').value, judge:+$('#f-judge').value,
+    risk:$('#f-risk').value, use:chipVal('#f-use')||'repeat'};
+  tasks.push(t); selId=t.id; save(); resetForm(); renderAll();
+  $('#result').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function resetForm(){
+  $('#f-name').value=''; $('#f-pain').value=''; $('#f-min').value='60';
+  $('#f-data').value='5'; $('#f-rule').value='3'; $('#f-judge').value='3'; $('#f-risk').value='none';
+  document.querySelectorAll('#f-freq .chip').forEach((c,i)=>c.classList.toggle('on',i===2));
+  document.querySelectorAll('#f-use .chip').forEach((c,i)=>c.classList.toggle('on',i===1));
+}
+function select(id){ selId=id; renderAll(); $('#result').scrollIntoView({behavior:'smooth',block:'center'}); }
+function del(id){ tasks=tasks.filter(t=>t.id!==id); if(selId===id)selId=null; save(); renderAll(); }
+function clearAll(){ if(!tasks.length||confirm('입력한 업무를 전부 지울까요?')){ tasks=[]; selId=null; save(); renderAll(); } }
+function focusForm(){ $('#formCard').scrollIntoView({behavior:'smooth',block:'start'}); $('#f-name').focus(); }
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function save(){ try{ localStorage.setItem('mkt-matrix', JSON.stringify(tasks)); }catch(e){} }
+function load(){ try{ tasks = JSON.parse(localStorage.getItem('mkt-matrix')||'[]'); }catch(e){ tasks=[]; } }
+
+/* ── 초기화 ──────────────────────────────── */
+load(); renderRoleSelect(); renderChips(); renderAll();
+</script>
+</body>
+</html>
